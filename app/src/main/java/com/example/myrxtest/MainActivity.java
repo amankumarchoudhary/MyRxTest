@@ -27,7 +27,6 @@ import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 public class MainActivity extends AppCompatActivity {
-
     RecyclerView rview;
     Button btn1;
     EditText et1;
