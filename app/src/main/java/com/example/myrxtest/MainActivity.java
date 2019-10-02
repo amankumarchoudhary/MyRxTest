@@ -14,11 +14,13 @@ import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 import io.reactivex.BackpressureStrategy;
 import io.reactivex.Flowable;
 import io.reactivex.FlowableSubscriber;
 import io.reactivex.Observable;
+import io.reactivex.ObservableSource;
 import io.reactivex.Observer;
 import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -47,20 +49,22 @@ public class MainActivity extends AppCompatActivity {
         tasks.add(new Task("Take out the trash", true, 3));
         tasks.add(new Task("Walk the dog", false, 2));
         tasks.add(new Task("Make my bed", true, 1));
-        tasks.add(new Task("Unload the dishwasher", false, 0));
+        tasks.add(new Task("Unload the dishwasher", false, 4));
         tasks.add(new Task("Make dinner", true, 5));
 
         final Observable<Task> taskObservable = Observable // create a new Observable object
                 .fromIterable(tasks)
-                .map(new Function<Task, Task>() {
+                /*.map(new Function<Task, Task>() {
                     @Override
                     public Task apply(Task task) throws Exception {
                         Task task1=new Task(task.getDescription()+"Aman",task.isComplete(),task.getPriority());
                         return task1;
                     }
-                })
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread());
+                })*/
+//                .buffer(2)
+//                .debounce(1,TimeUnit.NANOSECONDS)
+//                .throttleLatest(1,TimeUnit.NANOSECONDS)
+                .subscribeOn(Schedulers.io());
 
         taskObservable.subscribe(new Observer<Task>() {
             @Override
@@ -83,6 +87,28 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+//        taskObservable.subscribe(new Observer<List<Task>>() {
+//            @Override
+//            public void onSubscribe(Disposable d) {
+//
+//            }
+//
+//            @Override
+//            public void onNext(List<Task> tasks) {
+//                Log.d("ondone", "onNext: : " + tasks.size());
+//            }
+//
+//            @Override
+//            public void onError(Throwable e) {
+//
+//            }
+//
+//            @Override
+//            public void onComplete() {
+//
+//            }
+//        });
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
