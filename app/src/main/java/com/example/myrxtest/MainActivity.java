@@ -14,6 +14,7 @@ import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.BackpressureStrategy;
@@ -222,6 +223,40 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        // create Observable (method will not execute yet)
+        Observable<List<Task>> callable = Observable
+                .fromCallable(new Callable<List<Task>>() {
+                    @Override
+                    public List<Task> call() throws Exception {
+                        return DataSource.createTasksList();
+                    }
+                })
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread());
+
+        // method will be executed since now something has subscribed
+        callable.subscribe(new Observer<List<Task>>() {
+            @Override
+            public void onSubscribe(Disposable d) {
+
+            }
+
+            @Override
+            public void onNext(List<Task> task) {
+                Log.d("ondone", "callable: " + task.size());
+            }
+
+            @Override
+            public void onError(Throwable e) {
+
+            }
+
+            @Override
+            public void onComplete() {
+
+            }
+        });
+
 
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -230,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Flowable.range(0, 1000000)
+        /*Flowable.range(0, 1000000)
                 .onBackpressureBuffer()
                 .observeOn(Schedulers.computation())
                 .subscribe(new FlowableSubscriber<Integer>() {
@@ -250,6 +285,6 @@ public class MainActivity extends AppCompatActivity {
                     public void onComplete() {
 
                     }
-                });
+                });*/
     }
 }
