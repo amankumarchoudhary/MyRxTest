@@ -1,6 +1,7 @@
 package com.example.myrxtest;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.MutableLiveData;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -9,12 +10,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.reactivestreams.Subscription;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 import java.util.concurrent.Callable;
+import java.util.concurrent.FutureTask;
 import java.util.concurrent.TimeUnit;
 
 import io.reactivex.BackpressureStrategy;
@@ -37,6 +41,8 @@ public class MainActivity extends AppCompatActivity {
     Button btn1;
     EditText et1;
     List<Task> tasks;
+    TextView textView;
+    MutableLiveData<String> number;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +50,10 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         btn1=findViewById(R.id.btn1);
+        number=new MutableLiveData<>();
         et1=findViewById(R.id.et1);
         rview=findViewById(R.id.rview);
+        textView=findViewById(R.id.textview);
         LinearLayoutManager linearLayoutManager=new LinearLayoutManager(this, LinearLayoutManager.VERTICAL,false);
         rview.setLayoutManager(linearLayoutManager);
 
@@ -261,7 +269,26 @@ public class MainActivity extends AppCompatActivity {
         btn1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                tasks.add(new Task(et1.getText().toString(),false,5));
+                Callable callable = new CallableExample();
+               /* Runnable runnable=new RunnableExample();
+                Thread t=new Thread(runnable);
+                t.start();*/
+                try {
+                    FutureTask randomNumber=new FutureTask(callable);
+                    Thread t=new Thread(randomNumber);
+                    t.start();
+                    number.setValue(String.valueOf(randomNumber.get()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+
+            }
+        });
+
+        number.observe(this, new androidx.lifecycle.Observer<String>() {
+            @Override
+            public void onChanged(String s) {
+                textView.setText(s);
             }
         });
 
@@ -287,4 +314,33 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });*/
     }
+
+    class CallableExample implements Callable{
+
+        @Override
+        public Integer call() throws Exception {
+//            Random generator = new Random();
+//            Integer randomNumber = generator.nextInt();
+            Thread.sleep(7000);
+//            number.setValue(String.valueOf(5));
+
+            return 5;
+        }
+
+}
+
+class RunnableExample implements Runnable{
+
+    @Override
+    public void run() {
+        try {
+            Thread.sleep(5000);
+            Log.i("thread", "run: ");
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
 }
